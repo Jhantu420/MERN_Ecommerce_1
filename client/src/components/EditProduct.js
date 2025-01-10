@@ -23,7 +23,7 @@ function EditProduct() {
   // Pre-fill form data when the product prop changes
   useEffect(() => {
     // Fetch the product details
-    fetch(`http://localhost:4000/api/get-products/${id}`)
+    fetch(process.env.REACT_APP_BACKEND_URL + `/api/get-products/${id}`)
       .then((res) => res.json())
       .then((response) => {
         console.log("Fetched Response:", response); // Debug log
@@ -37,7 +37,7 @@ function EditProduct() {
           description: data.description || "",
           imageFiles: data.imageFiles || [],
         });
-        console.log('Fetched from data', formData)
+        console.log("Fetched from data", formData);
       })
       .catch((error) => console.error("Error fetching product:", error));
   }, [id]);
@@ -85,7 +85,7 @@ function EditProduct() {
     // Now send the form data without the _id
     // console.log("Form Data before submission:", formDataWithoutId);
 
-    fetch(`http://localhost:4000/api/edit-product/${id}`, {
+    fetch(process.env.REACT_APP_BACKEND_URL+`/api/edit-product/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -94,7 +94,7 @@ function EditProduct() {
       body: JSON.stringify(formDataWithoutId), // Send formData without _id
     })
       .then((res) => res.json())
-      .then(()=>{
+      .then(() => {
         navigate("/admin-pannel/all-products");
       })
       .catch((error) => {

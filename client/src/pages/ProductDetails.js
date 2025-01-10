@@ -23,7 +23,7 @@ function ProductDetails() {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`http://localhost:4000/api/get-products/${id}`)
+    fetch(process.env.REACT_APP_BACKEND_URL + `/api/get-products/${id}`)
       .then((res) => res.json())
       .then((response) => {
         if (response.success) {

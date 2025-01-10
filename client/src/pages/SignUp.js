@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import loginIcons from "../assest/signin.gif";
 import { Link, useNavigate } from "react-router-dom";
-import { toast} from "react-toastify";
+import { toast } from "react-toastify";
 
 const SignUp = () => {
   const [data, setData] = useState({
@@ -49,7 +49,7 @@ const SignUp = () => {
       return;
     }
 
-    fetch("http://localhost:4000/api/signup", {
+    fetch(process.env.REACT_APP_BACKEND_URL + "/api/signup", {
       method: "POST",
       body: JSON.stringify(data),
       headers: {

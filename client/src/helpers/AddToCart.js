@@ -7,7 +7,7 @@ export default function AddToCart(e, id) {
 //   console.log("Adding product with ID:", id);
 
   // Make a POST request to add the product to the cart
-  fetch("http://localhost:4000/api/addtocart", {
+  fetch(process.env.REACT_APP_BACKEND_URL + "/api/addtocart", {
     method: "POST",
     credentials: "include", // Include cookies for authentication
     headers: {

@@ -15,7 +15,8 @@ const CartProduct = () => {
       try {
         setLoading(true);
         const response = await fetch(
-          "http://localhost:4000/api/getCartProductRelatedUserController",
+          process.env.REACT_APP_BACKEND_URL +
+            "/api/getCartProductRelatedUserController",
           {
             credentials: "include",
           }
@@ -31,7 +32,8 @@ const CartProduct = () => {
           // Proceed to fetch product details
           const productDetailsPromises = result.data.map(async (item) => {
             const productResponse = await fetch(
-              `http://localhost:4000/api/get-products/${item.productId}`
+              process.env.REACT_APP_BACKEND_URL +
+                `/api/get-products/${item.productId}`
             );
             const productResult = await productResponse.json();
             if (productResponse.ok) {
@@ -67,7 +69,7 @@ const CartProduct = () => {
   const handleRemoveFromCart = async (productId) => {
     try {
       const response = await fetch(
-        "http://localhost:4000/api/deleteCartProductController",
+        process.env.REACT_APP_BACKEND_URL + "/api/deleteCartProductController",
         {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
@@ -126,11 +128,14 @@ const CartProduct = () => {
       }));
 
       // Create Razorpay Order
-      const response = await fetch("http://localhost:4000/api/create-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: totalPrice }),
-      });
+      const response = await fetch(
+        process.env.REACT_APP_BACKEND_URL + "/api/create-order",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount: totalPrice }),
+        }
+      );
 
       const { success, order } = await response.json();
 
@@ -151,7 +156,7 @@ const CartProduct = () => {
           try {
             // Verify payment
             const paymentResult = await fetch(
-              "http://localhost:4000/api/verify-payment",
+              process.env.REACT_APP_BACKEND_URL + "/api/verify-payment",
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -170,7 +175,8 @@ const CartProduct = () => {
               await Promise.all(
                 cartData.map((item) =>
                   fetch(
-                    "http://localhost:4000/api/deleteCartProductController",
+                    process.env.REACT_APP_BACKEND_URL +
+                      "/api/deleteCartProductController",
                     {
                       method: "DELETE",
                       headers: { "Content-Type": "application/json" },

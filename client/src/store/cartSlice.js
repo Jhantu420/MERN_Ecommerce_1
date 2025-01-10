@@ -42,7 +42,8 @@ export const fetchCart = () => async (dispatch) => {
   try {
     // Step 1: Fetch cart items from server
     const response = await axios.get(
-      "http://localhost:4000/api/getCartProductRelatedUserController",
+      process.env.REACT_APP_BACKEND_URL +
+        "/api/getCartProductRelatedUserController",
       { withCredentials: true }
     );
 
@@ -50,7 +51,8 @@ export const fetchCart = () => async (dispatch) => {
       // Step 2: Fetch product details for each product ID
       const productDetailsPromises = response.data.data.map(async (item) => {
         const productResponse = await axios.get(
-          `http://localhost:4000/api/get-products/${item.productId}`
+          process.env.REACT_APP_BACKEND_URL +
+            `/api/get-products/${item.productId}`
         );
         return {
           ...item,
@@ -78,7 +80,8 @@ export const fetchCart = () => async (dispatch) => {
 export const deleteCartItem = (productId) => async (dispatch) => {
   try {
     const response = await axios.delete(
-      `http://localhost:4000/api/deleteCartProductController/${productId}`,
+      process.env.REACT_APP_BACKEND_URL +
+        `/api/deleteCartProductController/${productId}`,
       { withCredentials: true }
     );
 

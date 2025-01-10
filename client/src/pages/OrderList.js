@@ -7,9 +7,12 @@ export default function OrderList() {
 
   const fetchOrderData = async () => {
     try {
-      const response = await fetch("http://localhost:4000/api/get-orderDetails", {
-        credentials: "include",
-      });
+      const response = await fetch(
+        process.env.REACT_APP_BACKEND_URL + "/api/get-orderDetails",
+        {
+          credentials: "include",
+        }
+      );
       const result = await response.json();
 
       if (result.data && result.data.length > 0) {
@@ -43,7 +46,10 @@ export default function OrderList() {
               <h3>Order ID: {order._id}</h3>
               <p>Total Amount: {order.totalPrice}</p>
               <p>Status: {order.status}</p>
-              <p>Date: {moment(order.createdAt).format("MMMM Do YYYY, h:mm:ss a")}</p>
+              <p>
+                Date:{" "}
+                {moment(order.createdAt).format("MMMM Do YYYY, h:mm:ss a")}
+              </p>
             </li>
           ))}
         </ul>

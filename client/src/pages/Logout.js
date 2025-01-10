@@ -8,22 +8,23 @@ function Logout() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleLogout = () => {
-    fetch("http://localhost:4000/api/logout", {
+    fetch(process.env.REACT_APP_BACKEND_URL + "/api/logout", {
       method: "POST",
       credentials: "include",
-    }).then((res) => {
-      if (res.ok) {
-        dispatch(clearUserDetails()); // Clear the user details from the redux
-        toast.success("Logged out successfully");
-        navigate("/sign-in");
-      } else {
-        toast.error("Logout failed");
-      }
     })
-    .catch((error)=>{
-        console.log(error)
-        toast.error('Logout error')
-    });
+      .then((res) => {
+        if (res.ok) {
+          dispatch(clearUserDetails()); // Clear the user details from the redux
+          toast.success("Logged out successfully");
+          navigate("/sign-in");
+        } else {
+          toast.error("Logout failed");
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        toast.error("Logout error");
+      });
   };
   return (
     <div className="px-3 py-1 bg-red-600 text-white hover:bg-red-700 rounded-md">

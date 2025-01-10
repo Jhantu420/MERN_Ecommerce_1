@@ -19,7 +19,8 @@ const VarticalCardProduct = ({ category, heading }) => {
       try {
         setLoading(true);
         const response = await fetch(
-          `http://localhost:4000/api/category-product?category=${category}`
+          process.env.REACT_APP_BACKEND_URL +
+            `/api/category-product?category=${category}`
         );
         const result = await response.json();
 
@@ -57,45 +58,48 @@ const VarticalCardProduct = ({ category, heading }) => {
   }
 
   // Add to cart handler
-    const handleAddToCart = async (product) => {
-      try {
-        // Check if the product is already in the cart
-        const existingCartItem = cart.find(
-          (item) => item.productId === product._id
-        );
-        if (existingCartItem) {
-          toast.info(`${product.productName} is already in the cart.`);
-          return;
-        }
-  
-        // Proceed with adding to cart
-        const response = await fetch("http://localhost:4000/api/addtocart", {
+  const handleAddToCart = async (product) => {
+    try {
+      // Check if the product is already in the cart
+      const existingCartItem = cart.find(
+        (item) => item.productId === product._id
+      );
+      if (existingCartItem) {
+        toast.info(`${product.productName} is already in the cart.`);
+        return;
+      }
+
+      // Proceed with adding to cart
+      const response = await fetch(
+        process.env.REACT_APP_BACKEND_URL + "/api/addtocart",
+        {
           method: "POST",
           credentials: "include", // Ensures cookies are sent with the request
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ productId: product._id, quantity: 1 }), // Send necessary data
-        });
-        const result = await response.json();
-  
-        if (response.status === 401) {
-          toast.error("You need to be logged in to add items to the cart.");
-          navigate("/sign-in"); // Redirect to login page
-          return;
         }
-  
-        if (response.ok) {
-          dispatch(addItem({ productId: product._id, quantity: 1 })); // Update local cart state
-          toast.success(`${product.productName} added to the cart!`);
-        } else {
-          toast.error(result.message || "Failed to add item to the cart.");
-        }
-      } catch (error) {
-        console.error("Error while adding to cart:", error);
-        toast.error("An error occurred. Please try again.");
+      );
+      const result = await response.json();
+
+      if (response.status === 401) {
+        toast.error("You need to be logged in to add items to the cart.");
+        navigate("/sign-in"); // Redirect to login page
+        return;
       }
-    };
+
+      if (response.ok) {
+        dispatch(addItem({ productId: product._id, quantity: 1 })); // Update local cart state
+        toast.success(`${product.productName} added to the cart!`);
+      } else {
+        toast.error(result.message || "Failed to add item to the cart.");
+      }
+    } catch (error) {
+      console.error("Error while adding to cart:", error);
+      toast.error("An error occurred. Please try again.");
+    }
+  };
   return (
     <div className="container mx-auto px-2 my-4 relative">
       <h2 className="text-xl font-semibold mb-4">{heading}</h2>
@@ -105,12 +109,13 @@ const VarticalCardProduct = ({ category, heading }) => {
       >
         {data.map((product) => (
           <div
-            
             key={product._id}
             className="w-full min-w-[200px] md:min-w-[240px] max-w-[200px] md:max-w-[240px] bg-white rounded-sm shadow flex flex-col my-4"
           >
             <Link
-            to={"/product/" + product?._id} className="bg-slate-300 p-2 min-h-[120px] flex justify-center items-center">
+              to={"/product/" + product?._id}
+              className="bg-slate-300 p-2 min-h-[120px] flex justify-center items-center"
+            >
               <img
                 src={product.imageFiles[0]} // Displaying the first image
                 alt={product.productName}

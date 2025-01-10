@@ -8,7 +8,7 @@ function AllUsers() {
   const [showEditPopup, setShowEditPopup] = useState(false);
 
   useEffect(() => {
-    fetch("http://localhost:4000/api/all-users")
+    fetch(process.env.REACT_APP_BACKEND_URL + "/api/all-users")
       .then((res) => res.json())
       .then((result) => {
         setData(result.users);
@@ -34,7 +34,7 @@ function AllUsers() {
   };
 
   const handleDeleteClick = (id) => {
-    fetch(`http://localhost:4000/api/delete-user/${id}`, {
+    fetch(process.env.REACT_APP_BACKEND_URL + `/api/delete-user/${id}`, {
       method: "DELETE",
     })
       .then((response) => {

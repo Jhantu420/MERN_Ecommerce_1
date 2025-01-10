@@ -32,7 +32,7 @@ function UploadProduct() {
   const handleDeleteImage = (index) => {
     const updatedImages = imageFiles.filter((_, i) => i !== index);
     setImageFiles(updatedImages);
-    alert(updatedImages)
+    alert(updatedImages);
   };
 
   const handleSubmit = async (event) => {
@@ -61,14 +61,14 @@ function UploadProduct() {
 
       // Step 3: Submit the form data
       const response = await axios.post(
-        "http://localhost:4000/api/upload-product",
+        process.env.REACT_APP_BACKEND_URL + "/api/upload-product",
         formData
       );
 
       // Step 4: Handle success
       toast.success(response.data.message);
       console.log(response);
-      navigate('/admin-pannel/all-products')
+      navigate("/admin-pannel/all-products");
       resetForm();
     } catch (error) {
       // Handle any errors
@@ -207,7 +207,7 @@ function UploadProduct() {
             type="submit"
             className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
           >
-            Submit 
+            Submit
           </button>
         </div>
       </form>

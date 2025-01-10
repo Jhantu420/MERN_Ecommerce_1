@@ -21,7 +21,8 @@ const HorizontalCardProduct = ({ category, heading }) => {
       try {
         setLoading(true);
         const response = await fetch(
-          `http://localhost:4000/api/category-product?category=${category}`
+          process.env.REACT_APP_BACKEND_URL +
+            `/api/category-product?category=${category}`
         );
         const result = await response.json();
 
@@ -67,14 +68,17 @@ const HorizontalCardProduct = ({ category, heading }) => {
       }
 
       // Proceed with adding to cart
-      const response = await fetch("http://localhost:4000/api/addtocart", {
-        method: "POST",
-        credentials: "include", // Ensures cookies are sent with the request
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ productId: product._id, quantity: 1 }), // Send necessary data
-      });
+      const response = await fetch(
+        process.env.REACT_APP_BACKEND_URL + "/api/addtocart",
+        {
+          method: "POST",
+          credentials: "include", // Ensures cookies are sent with the request
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ productId: product._id, quantity: 1 }), // Send necessary data
+        }
+      );
       const result = await response.json();
 
       if (response.status === 401) {

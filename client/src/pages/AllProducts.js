@@ -10,7 +10,7 @@ function AllProducts() {
   // Fetch Products from the API
   const fetchProducts = () => {
     setLoading(true); // Set loading true when refetching
-    fetch("http://localhost:4000/api/get-products")
+    fetch(process.env.REACT_APP_BACKEND_URL + "/api/get-products")
       .then((res) => res.json())
       .then((data) => {
         setProducts(data?.data || []); // Handle products if available
@@ -31,7 +31,7 @@ function AllProducts() {
 
   const handleDeleteProduct = (id) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
-      fetch(`http://localhost:4000/api/delete-product/${id}`, {
+      fetch(process.env.REACT_APP_BACKEND_URL + `/api/delete-product/${id}`, {
         method: "DELETE",
       })
         .then((res) => res.json())

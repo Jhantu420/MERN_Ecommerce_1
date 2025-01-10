@@ -15,7 +15,7 @@ function EditUser({ user, onClose, onUpdate }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch(`http://localhost:4000/api/edit-user/${user._id}`, {
+    fetch(process.env.REACT_APP_BACKEND_URL + `/api/edit-user/${user._id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

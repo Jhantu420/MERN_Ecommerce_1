@@ -32,10 +32,13 @@ const App = () => {
   // Fetch user details and update Redux store
   const fetchUserDetails = async () => {
     try {
-      const response = await fetch("http://localhost:4000/api/user-details", {
-        method: "GET",
-        credentials: "include", // Ensure cookies are sent with the request
-      });
+      const response = await fetch(
+        process.env.REACT_APP_BACKEND_URL + "/api/user-details",
+        {
+          method: "GET",
+          credentials: "include", // Ensure cookies are sent with the request
+        }
+      );
       const result = await response.json();
       if (result.success) {
         dispatch(setUserDetails(result.user)); // Update user details in Redux
@@ -79,7 +82,6 @@ const App = () => {
         <Route path="/Cart_Product" element={<CartProduct />} />
         <Route path="/search" element={<SearchProduct />} />
         <Route path="/orderList" element={<OrderList />} />
-        
 
         {/* Protected Routes */}
         <Route element={<PrivateRoutes auth={auth} />}>

@@ -5,9 +5,13 @@ function CategoryList() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // Console log to check if the environment variable is being loaded
+  // const url = (process.env.REACT_APP_BACKEND_URL+'/api/get-procuctCategory')
+  // console.log("This is url",url);
+
   const fetchCategoryProduct = () => {
     setLoading(true);
-    fetch("http://localhost:4000/api/get-procuctCategory")
+    fetch(process.env.REACT_APP_BACKEND_URL + "/api/get-procuctCategory")
       .then((res) => res.json())
       .then((result) => {
         setLoading(false);
@@ -32,7 +36,8 @@ function CategoryList() {
       ) : (
         <div className="flex items-center justify-between overflow-scroll space-x-2 scrollbar-none ">
           {data.map((item, index) => (
-            <Link to={"/category-product/"+item?.category}
+            <Link
+              to={"/category-product/" + item?.category}
               key={index}
               className="flex-shrink-0 flex flex-col items-center justify-center p-2 w-28"
             >

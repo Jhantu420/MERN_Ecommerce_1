@@ -23,7 +23,8 @@ function CategoryProduct() {
       setLoading(true);
       try {
         const response = await fetch(
-          `http://localhost:4000/api/get-products?category=${category}`,
+          process.env.REACT_APP_BACKEND_URL +
+            `/api/get-products?category=${category}`,
           { signal: controller.signal }
         );
         const result = await response.json();
@@ -84,14 +85,17 @@ function CategoryProduct() {
       }
 
       // Proceed with adding to cart
-      const response = await fetch("http://localhost:4000/api/addtocart", {
-        method: "POST",
-        credentials: "include", // Ensures cookies are sent with the request
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ productId: product._id, quantity: 1 }), // Send necessary data
-      });
+      const response = await fetch(
+        process.env.REACT_APP_BACKEND_URL + "/api/addtocart",
+        {
+          method: "POST",
+          credentials: "include", // Ensures cookies are sent with the request
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ productId: product._id, quantity: 1 }), // Send necessary data
+        }
+      );
       const result = await response.json();
 
       if (response.status === 401) {
