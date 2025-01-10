@@ -1,0 +1,374 @@
+
+
+photo upload section 1h,20min
+
+
+What we have done up to 3.29 h =  
+Frontend :=> ************************************************************************************
+1. Context API Integration
+The Context API is used to share the getUserDetails function across your React component tree.
+This avoids the need to pass it down manually as a prop through multiple levels.
+Context.Provider is defined in App.js to make the getUserDetails function accessible in child components (e.g., Login).
+2. Login Page (Login.js)
+State Management (useState):
+Maintains the email and password input values in the local component state.
+Navigation (useNavigate):
+Used for programmatic navigation to redirect users (e.g., to the home page after a successful login).
+Form Submission (handleSubmit):
+On form submission:
+A POST request is sent to /api/login with email and password in the body.
+The credentials: "include" ensures that cookies (like the authToken) are sent back with the request.
+If the login is successful:
+A success toast is displayed.
+The user is redirected to /.
+The getUserDetails function from the Context API is called to fetch user-specific data.
+If the login fails, an error toast is displayed.
+3. Global getUserDetails Function
+Defined in App.js and provided via Context.Provider.
+It sends a GET request to /api/user-details with credentials: "include" to include the token stored in the HTTP-only cookie.
+Logs the user details to the console on success or logs an error on failure.
+This function can be reused across your components.
+4. App Component (App.js)
+Global State with Context:
+The Context.Provider wraps the entire app, making getUserDetails accessible throughout the component tree.
+Route Configuration:
+Defines routes for different pages: Home, Login, ForgotPass, SignUp.
+Each route renders a corresponding component.
+Initial Data Fetching (useEffect):
+getUserDetails is called when the app loads to check if the user is authenticated and to fetch their data.
+5. Authentication Flow
+Login (/api/login):
+Handles authentication by verifying the email and password and generating a token.
+The backend sets an HTTP-only cookie with the token to maintain the session.
+Protected Route (/api/user-details):
+The token from the cookie is verified in the backend to ensure that only authenticated users can access this route.
+If the token is valid, user details are returned.
+If the token is missing or invalid, a 401 Unauthorized error is returned.
+What Happens in This Setup
+Login Process:
+
+The user logs in using email and password.
+On successful login, an HTTP-only cookie (authToken) is set by the backend.
+The app redirects the user to / and fetches their details using getUserDetails.
+User Details Fetching:
+
+getUserDetails is called on the initial load of the app and after a successful login.
+If the token in the cookie is valid, user-specific data is retrieved and logged.
+Context Usage:
+
+The getUserDetails function is shared across components using the Context API, making it reusable in the Login component.
+Error Handling:
+
+Errors during login or user data fetching (e.g., invalid token) are caught and logged, with appropriate error messages displayed to the user.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+backend :=> ************************************************************************************
+
+. Backend Setup
+Server Configuration:
+Express.js is being used to handle server-side logic.
+Routes and controllers are set up to handle specific functionality (e.g., login, signup, user details).
+Middleware:
+cookie-parser is used to parse cookies.
+cors is configured to allow communication between frontend (React) and backend.
+2. Authentication Flow
+User Login (/api/login):
+
+Users submit their credentials (email and password).
+If valid:
+A JWT (JSON Web Token) is generated and sent to the client as an HTTP-only cookie.
+This token is used to identify and authenticate the user for subsequent requests.
+If invalid:
+Proper error messages are returned.
+Middleware (authToken):
+
+Intercepts protected routes to verify the JWT token from the client (either from the cookie or Authorization header).
+Decoded token data (e.g., userId) is attached to req.user for downstream use.
+3. User Details (/api/user-details)
+Fetching Data:
+A protected route (/api/user-details) is set up to return user-specific information.
+The authToken middleware ensures that only authenticated requests with valid JWTs can access this endpoint.
+Using the userId extracted from the token, user data is retrieved from the database.
+4. Frontend Implementation
+Login Page:
+Users input email and password to log in.
+Successful login:
+Credentials are sent to the backend.
+The backend sets an HTTP-only cookie containing the JWT.
+On success, the user is redirected to the home page.
+Fetching User Data:
+A React useEffect is used to fetch user details immediately after the app loads.
+The request includes the cookie (credentials: "include").
+Response is logged in the browser console.
+5. Issues Identified
+Cookies Visibility:
+HTTP-only cookies are not visible in the browser's JavaScript console. This is by design for security reasons.
+Token Missing or Unauthorized Access:
+If cookies are not properly sent or the token is missing, requests to protected routes will fail with 401 Unauthorized.
+Frontend Console Logs:
+The frontend console logs any errors encountered during requests.
+6. Expected Behaviors
+After Login:
+The user receives an HTTP-only cookie with the JWT.
+Accessing /api/user-details:
+The token from the cookie is automatically sent in requests (via credentials: "include").
+If the token is valid, the user data is returned.
+If the token is invalid or missing, the request fails with 401 Unauthorized.
+7. Current Project Status
+Backend:
+JWT-based login is implemented and cookies are set.
+Middleware verifies tokens for protected routes.
+User data can be fetched based on the token-provided user ID.
+Frontend:
+Login form is working and sends credentials to the backend.
+Requests to fetch user details are integrated but may need debugging to ensure the cookies are sent correctly.
+Debugging:
+Some issues like 401 Unauthorized are caused by missing or incorrect tokens being sent with requests
+
+
+
+
+
+
+
+
+
+
+************************************************************************************************************************************
+To use the context api to store the users data in a store and share the data across all the component
+
+To implement user state management and store user details globally using the Context API, follow these steps:
+
+1. Modify the Context
+Create a global state to store user data and a function to set it.
+
+context/index.js
+javascript
+Copy code
+import { createContext } from "react";
+
+const Context = createContext({
+  user: null, // Initially, the user is not logged in
+  setUser: () => {}, // Function to update user state
+});
+
+export default Context;
+2. Update App.js
+Set up a useState hook in App.js to manage user data and provide it via Context.Provider.
+
+src/App.js
+javascript
+Copy code
+import React, { useEffect, useState } from "react";
+import "react-toastify/dist/ReactToastify.css";
+import { Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+import Login from "./pages/Login";
+import ForgotPass from "./pages/ForgotPass";
+import SignUp from "./pages/SignUp";
+import Context from "./context";
+
+const App = () => {
+  const [user, setUser] = useState(null); // Store user details here
+
+  const getUserDetails = () => {
+    fetch("http://localhost:4000/api/user-details", {
+      method: "GET",
+      credentials: "include", // Include cookies in the request
+    })
+      .then((res) => res.json())
+      .then((result) => {
+        if (result.success) {
+          console.log("User Details:", result.data);
+          setUser(result.data); // Update global user state
+        } else {
+          console.error("Failed to fetch user details:", result.message);
+        }
+      })
+      .catch((error) => console.error("Error fetching user details:", error));
+  };
+
+  useEffect(() => {
+    getUserDetails(); // Fetch user details when the app loads
+  }, []);
+
+  return (
+    <Context.Provider value={{ user, setUser, getUserDetails }}>
+      <Header />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/sign-in" element={<Login />} />
+        <Route path="/forget-password" element={<ForgotPass />} />
+        <Route path="/sign-up" element={<SignUp />} />
+      </Routes>
+      <Footer />
+    </Context.Provider>
+  );
+};
+
+export default App;
+3. Update Login.js
+Use the setUser function from the context to update the global state after a successful login.
+
+src/pages/Login.js
+javascript
+Copy code
+import React, { useContext, useState } from "react";
+import loginIcons from "../assest/signin.gif";
+import { toast, ToastContainer } from "react-toastify";
+import { Link, useNavigate } from "react-router-dom";
+import Context from "../context";
+
+const Login = () => {
+  const [data, setData] = useState({ email: "amit@gmail.com", password: "password" });
+  const navigate = useNavigate();
+  const { setUser, getUserDetails } = useContext(Context);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    fetch("http://localhost:4000/api/login", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+      },
+      credentials: "include", // Include credentials (cookies) in the request
+      body: JSON.stringify(data),
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Invalid email or password");
+        }
+        return res.json();
+      })
+      .then((responseData) => {
+        toast.success("Sign-In successful!");
+        console.log("Login successful:", responseData);
+
+        setData({ email: "", password: "" });
+        getUserDetails(); // Fetch user details after login
+        navigate("/"); // Redirect to home page
+      })
+      .catch((err) => {
+        toast.error(err.message || "Failed to login");
+        console.error("Error:", err);
+      });
+  };
+
+  return (
+    <section id="login">
+      <ToastContainer />
+      <div className="mx-auto container p-4 ">
+        <div className="bg-white p-5 py-5 w-full max-w-md mx-auto rounded-3xl shadow-2xl">
+          <div className="w-20 h-20 mx-auto ">
+            <img src={loginIcons} alt="login Icon" className="rounded-full" />
+          </div>
+          <form action="" onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid">
+              <label htmlFor="">email</label>
+              <input
+                type="email"
+                placeholder="Enter email"
+                value={data.email}
+                onChange={(e) => setData({ ...data, email: e.target.value })}
+                className="w-full h-full outline-none bg-slate-100 p-2 rounded-sm"
+                required
+              />
+            </div>
+            <div className="grid">
+              <label htmlFor="">password</label>
+              <input
+                type="password"
+                placeholder="Enter password"
+                value={data.password}
+                onChange={(e) => setData({ ...data, password: e.target.value })}
+                className="w-full h-full outline-none  bg-slate-100 p-2 rounded-sm"
+                required
+              />
+            </div>
+            <div>
+              <p>
+                <Link
+                  to="/forget-password"
+                  className="hover:text-red-500 hover:underline flex justify-end p-2"
+                >
+                  Forgot password ?
+                </Link>
+              </p>
+            </div>
+            <button className="bg-red-600 text-white p-2 m-2 w-full max-w-40 rounded-3xl hover:scale-110 transition-all mx-auto block">
+              Login
+            </button>
+          </form>
+          <p className="py-4">
+            Don't have an account?{" "}
+            <Link
+              to={"/sign-up"}
+              className=" hover:text-red-700  hover:underline"
+            >
+              Sign up
+            </Link>
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Login;
+4. Display User Data in the Header
+Use the global user state in the Header component to display the user's name or email.
+
+src/components/Header.js
+javascript
+Copy code
+import React, { useContext } from "react";
+import Context from "../context";
+
+const Header = () => {
+  const { user } = useContext(Context);
+
+  return (
+    <header>
+      <nav>
+        <ul>
+          <li>Home</li>
+          {user ? (
+            <li>Welcome, {user.name || user.email}</li>
+          ) : (
+            <li>Please log in</li>
+          )}
+        </ul>
+      </nav>
+    </header>
+  );
+};
+
+export default Header;
+Expected Behavior
+Login Flow:
+
+After a successful login, the getUserDetails function is called to fetch the user’s data.
+The user data is stored in the global state (Context).
+Header Update:
+
+The Header displays the logged-in user’s name or email.
+If the user is not logged in, it prompts them to log in.
+Global State:
+
+The user details are accessible throughout the app using the Context API.

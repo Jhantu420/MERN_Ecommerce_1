@@ -1,0 +1,5 @@
+/* Scroll bar hiddel */
+
+.scrollbar-none::-webkit-scrollbar{
+    display: none;
+}
