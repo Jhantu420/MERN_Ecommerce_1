@@ -22,6 +22,7 @@ import ProductDetails from "./pages/ProductDetails";
 import CartProduct from "./pages/CartProduct";
 import { fetchCart } from "./store/cartSlice";
 import SearchProduct from "./pages/SearchProduct";
+import OrderList from "./pages/OrderList";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -77,6 +78,7 @@ const App = () => {
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/Cart_Product" element={<CartProduct />} />
         <Route path="/search" element={<SearchProduct />} />
+        <Route path="/orderList" element={<OrderList />} />
         
 
         {/* Protected Routes */}

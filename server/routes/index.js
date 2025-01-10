@@ -21,9 +21,11 @@ const countAddToCardProduct = require("../controller/CountAddToCardProduct.js");
 const DeleteUser = require("../controller/DeleteUser.js");
 const getCartProductRelatedUserController = require("../controller/getCartProductRelatedUserController.js");
 const deleteCartProductController = require("../controller/deleteCartProductController.js");
+const orderController  = require("../controller/orderController");
 const searchProductsController = require("../controller/searchProductController.js");
 const verifyPaymentController = require("../payment/verifyPaymentController .js");
 const createOrderController = require("../payment/createOrderController.js");
+const getOrderController = require("../controller/getOrderDetails.js");
 
 // Route to handle user signup
 router.post("/signup", userSignUpController);
@@ -98,5 +100,12 @@ router.post("/create-order", createOrderController);
 
 // Razorpay Payment Verify Controller
 router.post("/verify-payment", verifyPaymentController)
+
+
+// Save the order to the database
+router.post("/store-order", orderController.storeOrder)
+
+// Get order details
+router.get("/get-orderDetails",authToken, getOrderController)
 
 module.exports = router;

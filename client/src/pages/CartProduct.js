@@ -6,6 +6,7 @@ import { removeItem } from "../store/cartSlice";
 const CartProduct = () => {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [userId, setUserID] = useState(true);
   const dispatch = useDispatch();
 
   // Fetch cart items on component mount
@@ -20,7 +21,14 @@ const CartProduct = () => {
           }
         );
         const result = await response.json();
-        if (result.success) {
+
+        if (result.success && result.data.length > 0) {
+          // Get userId from the first item in the data array
+          const userId = result.data[0].userId;
+          setUserID(userId);
+          // console.log("This is the user ID from the response:", userId);
+
+          // Proceed to fetch product details
           const productDetailsPromises = result.data.map(async (item) => {
             const productResponse = await fetch(
               `http://localhost:4000/api/get-products/${item.productId}`
@@ -38,10 +46,11 @@ const CartProduct = () => {
               return null;
             }
           });
+
           const completeCartItems = await Promise.all(productDetailsPromises);
           setCartItems(completeCartItems.filter((item) => item !== null));
         } else {
-          toast.error(result.message || "Failed to fetch cart items.");
+          toast.error(result.message || "No cart items found.");
         }
       } catch (error) {
         console.error("Error fetching cart items:", error);
@@ -50,6 +59,7 @@ const CartProduct = () => {
         setLoading(false);
       }
     };
+
     fetchCartItems();
   }, []);
 
@@ -131,34 +141,56 @@ const CartProduct = () => {
 
       // Razorpay Payment Options
       const options = {
-        key: process.env.RAZORPAY_KEY, // Your Razorpay key
+        key: process.env.RAZORPAY_KEY,
         amount: order.amount,
         currency: order.currency,
         name: "Easy Commerce",
         description: "Thank you for your purchase!",
         order_id: order.id,
         handler: async function (response) {
-          // Handle payment success
-          const paymentResult = await fetch(
-            "http://localhost:4000/api/verify-payment",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-              }),
-            }
-          );
+          try {
+            // Verify payment
+            const paymentResult = await fetch(
+              "http://localhost:4000/api/verify-payment",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                }),
+              }
+            );
 
-          const result = await paymentResult.json();
-          if (result.success) {
-            toast.success("Payment successful!");
-            setCartItems([]);
-            dispatch({ type: "cart/clearCart" });
-          } else {
-            toast.error("Payment verification failed.");
+            const result = await paymentResult.json();
+
+            if (result.success) {
+              // Remove all cart items from the database
+              await Promise.all(
+                cartData.map((item) =>
+                  fetch(
+                    "http://localhost:4000/api/deleteCartProductController",
+                    {
+                      method: "DELETE",
+                      headers: { "Content-Type": "application/json" },
+                      credentials: "include",
+                      body: JSON.stringify({ productId: item.productId }),
+                    }
+                  )
+                )
+              );
+
+              // Clear cart in Redux
+              dispatch({ type: "cart/clearCart" });
+              toast.success("Order placed successfully and cart cleared!");
+              setCartItems([]);
+            } else {
+              toast.error("Payment verification failed.");
+            }
+          } catch (error) {
+            console.error("Error during payment processing:", error);
+            toast.error("An error occurred while processing payment.");
           }
         },
         prefill: {
